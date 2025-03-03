@@ -1,7 +1,0 @@
-$include:
-  - conf/a100/base_a.yml
-  ## 이게 최종적으로 들어감.
-
-batch_size: 8
-val_batch_size: 8
-num_workers: 8

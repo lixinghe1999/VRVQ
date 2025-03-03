@@ -1,6 +1,0 @@
-$include:
-  - conf/base.yml
-  - conf/1gpu.yml
-
-
-batch_size: 8
