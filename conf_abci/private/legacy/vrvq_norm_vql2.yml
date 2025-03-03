@@ -1,0 +1,42 @@
+$include:
+  - conf/private/base_p.yml
+  - conf/private/1gpu_p.yml
+
+amp: false
+batch_size: 12
+val_batch_size: 12
+
+num_iters: 200000
+save_iters: []
+
+VDAC.quantizer_loss: 'l2'
+VDAC.quantizer_dropout: 0.1
+VDAC.full_codebook_rate: 0.1
+# VDAC.alpha_dist: 1.0
+
+VDAC.use_learnable_alpha: true
+# VDAC.residual_norm_loss: 'normalized_l2'
+VDAC.residual_norm_loss: 'l2'
+
+resume: true
+load_weights: true
+
+### For vrvq
+# VDAC.n_codebooks: 8
+# VDAC.codebook_size: [2048, 2048, 1024, 1024, 512, 512, 256, 256]
+# VDAC.codebook_dim: 64
+
+
+# train/build_dataset.folders:
+#   music_hq:
+#     - /data/yoongidata/temp/data/musdb18hq_from_zenedo/train
+#   music_uq:
+#     - /data/yoongidata/temp/data/jamendo/441khz
+
+# val/build_dataset.folders:
+#   music_hq:
+#     - /data/yoongidata/temp/data/musdb18hq_from_zenedo/test
+
+# test/build_dataset.folders:
+#   music_hq:
+#     - /data/yoongidata/temp/data/musdb18hq_from_zenedo/test

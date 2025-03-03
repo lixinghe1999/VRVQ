@@ -1,0 +1,20 @@
+$include:
+  - conf/base.yml
+  - conf/1gpu.yml
+
+amp: false
+batch_size: 16
+val_batch_size: 16
+
+num_iters: 200000
+save_iters: []
+
+VDAC_DecLoss.quantizer_dropout: 0.2
+VDAC_DecLoss.full_codebook_rate: 0.2
+VDAC_DecLoss.alpha_dist: 1.0
+
+
+VDAC_DecLoss.stop_gradient: true
+VDAC_DecLoss.use_gumbel: false
+VDAC_DecLoss.use_learnable_alpha: true
+VDAC_DecLoss.use_residual_norm_loss: false

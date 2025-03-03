@@ -1,0 +1,58 @@
+$include:
+  - conf/abci/base_abci.yml
+  - conf/abci/dataset_s.yml
+
+
+num_iters: 300000  
+save_iters: [200000]
+
+batch_size: 32
+val_batch_size: 8
+
+DACImpGrad.quantizer_dropout: 0.0  ####! 4
+DACImpGrad.full_codebook_rate: 0.0 ####! 4  ## THIS
+# DACImpGrad.full_codebook_rate: 0.0 ####! 0
+DACImpGrad.use_framewise_masking: false
+
+DACImpGrad.n_codebooks: 8
+DACImpGrad.imp_model_ver: "v2_2"
+DACImpGrad.random_level: 6.0  ####!  x2, x4
+# DACImpGrad.random_range: 0
+
+# DACImpGrad.random_exp: [0, 1,'lognormal_straight']
+# DACImpGrad.random_exp: [0.02, 50, 'loguniform_straight']  ## This
+DACImpGrad.imp2mask_alpha: 0.5  ###$
+DACImpGrad.imp2mask_func: "logcosh_ref"  # 'sigmoid', 'tanh', 'square' ###$
+# rate_loss_func: L2  ## This
+### Load pretrained.
+fix_generator_iters: 10000
+load_pretrained: true
+load_pretrained_path: 'ckpt_pre/weights_44khz_8kbps_0.0.1.pth'
+AdamW.lr: 0.00003 ### 0.999996^300k = 0.3
+
+lambdas: ## For generator. 
+  mel/loss: 15.0
+  # mel/loss_l2: 0.0  ####!
+  # l2/loss: 2.0
+  adv/feat_loss: 2.0
+  adv/gen_loss: 1.0
+  vq/commitment_loss: 0.25
+  vq/codebook_loss: 1.0
+  vq/rate_loss: 2  ####!
+        ## [0.0001, 0.2] * 15 * 33 = [0.05, 100.]
+  vq/rate_threshold: 0 ####!
+
+# # Loss setup
+
+# MelSpectrogramLossDuplicate.n_mels: [5, 10, 20, 40, 80, 160, 320]
+# MelSpectrogramLossDuplicate.window_lengths: [32, 64, 128, 256, 512, 1024, 2048]
+# MelSpectrogramLossDuplicate.mel_fmin: [0, 0, 0, 0, 0, 0, 0]
+# MelSpectrogramLossDuplicate.mel_fmax: [null, null, null, null, null, null, null]
+# MelSpectrogramLossDuplicate.pow: 1.0
+# MelSpectrogramLossDuplicate.clamp_eps: 1.0e-5
+# MelSpectrogramLossDuplicate.mag_weight: 0.0
+
+
+# resume: true
+# load_weights: true
+# # tag: 'best'

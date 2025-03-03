@@ -1,0 +1,19 @@
+$include:
+  - conf/base.yml
+  - conf/1gpu.yml
+
+amp: false
+batch_size: 16
+val_batch_size: 16
+
+num_iters: 200000
+save_iters: []
+
+VDAC.quantizer_dropout: 0.1
+VDAC.full_codebook_rate: 0.1
+# VDAC.alpha_dist: 1.0
+
+VDAC.use_learnable_alpha: true
+# VDAC.residual_norm_loss: 'normalized_l2'
+VDAC.residual_norm_loss: 'l2'
+

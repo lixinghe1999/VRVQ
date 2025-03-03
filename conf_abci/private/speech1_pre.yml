@@ -1,0 +1,83 @@
+$include:
+  - conf/private/base_p.yml
+  - conf/private/1gpu_p.yml
+
+num_iters: 500000  
+save_iters: []
+
+## 개당=> ㅇㅇ. 16/4 = 개당 4. => 대충 몇 정도?
+## 개당 8 => 다른 gpu에선 20000 먹었음.
+## 개당 6 해 봅시다. => 총 24
+batch_size: 32
+val_batch_size: 4
+
+## ALMOST COSINE
+
+## 4 = 32 * 0.125
+
+DACImpGrad.quantizer_dropout: 0.0  ####! 0
+# DACImpGrad.full_codebook_rate: 0.125 ####! 4
+DACImpGrad.full_codebook_rate: 0.125 ####! 4
+DACImpGrad.use_framewise_masking: false
+
+DACImpGrad.n_codebooks: 8
+DACImpGrad.imp_model_ver: "v2_2"
+# DACImpGrad.random_level: 4.0  ####!  x2, x4
+# DACImpGrad.random_range: 0
+
+DACImpGrad.random_exp: [0.01, 4, 'loguniform_straight']  ## This
+DACImpGrad.imp2mask_alpha: 0.5  ###$
+DACImpGrad.imp2mask_func: "logcosh_ref"  # 'sigmoid', 'tanh', 'square' ###$
+
+lambdas: ## For generator. 
+  mel/loss: 15.0
+  # mel/loss_l2: 0.0  ####!
+  # l2/loss: 2.0
+  adv/feat_loss: 2.0
+  adv/gen_loss: 1.0
+  vq/commitment_loss: 0.25
+  vq/codebook_loss: 1.0
+  vq/rate_loss: 2  ####!
+        ## [0.0001, 0.2] * 15 * 33 = [0.05, 100.]
+  vq/rate_threshold: 0 ####!
+# Loss setup
+
+
+### Pretrained model
+load_pretrained: true
+# load_pretrained_path: 'ckpt_pre/weights_44khz_8kbps_0.0.1.pth'
+# n_codebooks: 8
+
+## final model: bs 72, 400k iter
+##AdamW.lr: 0.0001
+## ExponentialLR.gamma: 0.999996
+##=> ^400k=0.20189....
+fix_generator_iters: 10000
+generator/AdamW.lr: 0.00002
+generator/ExponentialLR.warmup: 1000
+
+discriminator/AdamW.lr: 0.0001
+discriminator/ExponentialLR.warmup: 0
+
+
+# resume: true
+# load_weights: true
+# # tag: 'best'
+
+
+train/build_dataset.folders:
+  speech_fb:
+    - /data2/yoongi/daps
+  speech_hq:
+    - /data/yoongidata/voicebank-demand-48k-encodec-3sec-24kbps/clean_trainset_56spk_wav
+    - /data2/yoongi/DNS-Challenge/datasets_fullband/datasets_fullband/clean_fullband
+
+
+val/build_dataset.folders:
+  speech_hq:
+    -  /data2/yoongi/VCTK-Corpus/VCTK-Corpus/wav48/
+
+
+test/build_dataset.folders:
+  speech_hq:
+      - /data/yoongidata/temp/data/data_test/DAPS/test

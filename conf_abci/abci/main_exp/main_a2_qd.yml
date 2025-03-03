@@ -1,0 +1,66 @@
+$include:
+  - conf/abci/base_abci.yml
+  - conf/abci/dataset_s.yml
+  # - conf/abci/dataset_g.yml
+  # - conf/abci/1gpu_abci.yml
+## DACImp -> DACImpGrad 수정: config제대로 함. 
+## 
+
+## 원래 논문:
+## ablation: bs 12, 250k iter
+## final model: bs 72, 400k iter
+
+num_iters: 300000  
+save_iters: []
+
+## 개당=> ㅇㅇ. 16/4 = 개당 4. => 대충 몇 정도?
+## 개당 8 => 다른 gpu에선 20000 먹었음.
+## 개당 6 해 봅시다. => 총 24
+batch_size: 32
+val_batch_size: 8
+
+## ALMOST COSINE
+
+## 4 = 32 * 0.125
+
+DACImpGrad.quantizer_dropout: 0.125  ####! 0
+DACImpGrad.full_codebook_rate: 0.125 ####! 4
+# DACImpGrad.full_codebook_rate: 0.0 ####! 4
+DACImpGrad.use_framewise_masking: false
+
+DACImpGrad.n_codebooks: 8
+DACImpGrad.imp_model_ver: "v2_2"
+# DACImpGrad.random_level: 4.0  ####!  x2, x4
+# DACImpGrad.random_range: 0
+
+DACImpGrad.random_exp: [0.02, 8, 'loguniform_straight']  ## This
+DACImpGrad.imp2mask_alpha: 0.25  ###$
+DACImpGrad.imp2mask_func: "logcosh_ref"  # 'sigmoid', 'tanh', 'square' ###$
+rate_loss_func: L2  ## This
+
+lambdas: ## For generator. 
+  mel/loss: 15.0
+  # mel/loss_l2: 0.0  ####!
+  # l2/loss: 2.0
+  adv/feat_loss: 2.0
+  adv/gen_loss: 1.0
+  vq/commitment_loss: 0.25
+  vq/codebook_loss: 1.0
+  vq/rate_loss: 1  ####!
+        ## [0.0001, 0.2] * 15 * 33 = [0.05, 100.]
+  vq/rate_threshold: 0 ####!
+
+# # Loss setup
+
+# MelSpectrogramLossDuplicate.n_mels: [5, 10, 20, 40, 80, 160, 320]
+# MelSpectrogramLossDuplicate.window_lengths: [32, 64, 128, 256, 512, 1024, 2048]
+# MelSpectrogramLossDuplicate.mel_fmin: [0, 0, 0, 0, 0, 0, 0]
+# MelSpectrogramLossDuplicate.mel_fmax: [null, null, null, null, null, null, null]
+# MelSpectrogramLossDuplicate.pow: 1.0
+# MelSpectrogramLossDuplicate.clamp_eps: 1.0e-5
+# MelSpectrogramLossDuplicate.mag_weight: 0.0
+
+
+# resume: true
+# load_weights: true
+# # tag: 'best'

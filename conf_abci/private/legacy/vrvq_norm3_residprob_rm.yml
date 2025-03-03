@@ -1,0 +1,47 @@
+$include:
+  - conf/private/base_p.yml
+  - conf/private/1gpu_p.yml
+
+amp: false
+batch_size: 32
+val_batch_size: 32
+
+num_iters: 200000
+save_iters: []
+
+VDAC3.quantizer_dropout: 0.3
+VDAC3.full_codebook_rate: 0.0
+# VDAC.alpha_dist: 1.0
+
+VDAC3.use_learnable_alpha: true
+# VDAC.residual_norm_loss: 'normalized_l2'
+VDAC3.quantizer_loss: 'l2'
+VDAC3.ftn_version: 'v2'
+VDAC3.use_proj: true
+
+# resume: true
+# load_weights: true
+
+
+## p_thres 대신 bernoulli
+## prob-p_thres.relu 대신 prob loss
+## commitment_i * mask_prev
+## unmask 실험 제거 (속도 빠르게 하려고)
+
+
+### TODO: LUFS 관련
+
+
+# ### From base
+# # Model setup
+# DAC.sample_rate: 44100
+# DAC.encoder_dim: 64
+# DAC.encoder_rates: [2, 4, 8, 8]
+# DAC.decoder_dim: 1536
+# DAC.decoder_rates: [8, 8, 4, 2]
+
+# # Quantization
+# DAC.n_codebooks: 9
+# DAC.codebook_size: 1024
+# DAC.codebook_dim: 8
+# DAC.quantizer_dropout: 1.0

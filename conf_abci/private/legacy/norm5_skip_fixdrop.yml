@@ -1,0 +1,18 @@
+$include:
+  - conf/private/base_p.yml
+  - conf/private/1gpu_p.yml
+
+amp: false
+batch_size: 8
+val_batch_size: 8
+
+num_iters: 200000
+save_iters: []
+
+VDAC5.quantizer_dropout: 0.3
+VDAC5.full_codebook_rate: 0.2
+
+VDAC5.use_framewise_masking: false # vardrop for random masking
+VDAC5.use_framewise_threshold: false # framewise random threshold for probs
+
+VDAC5.cumulative_p: false # skip

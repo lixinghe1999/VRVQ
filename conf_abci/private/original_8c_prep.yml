@@ -1,0 +1,18 @@
+$include:
+  - conf/private/base_p.yml
+  - conf/private/1gpu_p.yml
+
+amp: false
+batch_size: 16
+val_batch_size: 4
+
+num_iters: 500000
+save_iters: []
+
+DAC.quantizer_dropout: 0.5
+DAC.n_codebooks: 8
+
+load_pretrained: true
+
+# resume: true
+# load_weights: true

@@ -1,0 +1,56 @@
+# Data
+batch_size: 72
+train/AudioDataset.duration: 0.38
+train/AudioDataset.n_examples: 10000000
+
+val/AudioDataset.duration: 5.0
+val/build_transform.augment_prob: 1.0
+val/AudioDataset.n_examples: 250
+
+test/AudioDataset.duration: 10.0
+test/build_transform.augment_prob: 1.0
+test/AudioDataset.n_examples: 1000
+
+AudioLoader.shuffle: true
+AudioDataset.without_replacement: true
+
+## /data_g = /groups/gce50978/Audio_data/DATASETS
+
+train/build_dataset.folders:
+        speech_fb:
+                - /groups/gce50978/Audio_data/DATASETS/DAPS/Sampled/train/
+        speech_hq:
+                - /groups/gce50978/Audio_data/DATASETS/VCTK/Sampled/VCTK-Corpus/wav48/
+                - /groups/gce50978/Audio_data/DATASETS/DNS_Challenge/Sampled/vctk_wav48_silence_trimmed/
+                - /groups/gce50978/Audio_data/DATASETS/DNS_Challenge/Sampled/read_speech/
+                - /groups/gce50978/Audio_data/DATASETS/DNS_Challenge/Sampled/french_speech/
+        speech_uq:
+                - /groups/gce50978/Audio_data/DATASETS/DNS_Challenge/Sampled/emotional_speech/
+                - /groups/gce50978/Audio_data/DATASETS/DNS_Challenge/Sampled/german_speech/
+                - /groups/gce50978/Audio_data/DATASETS/DNS_Challenge/Sampled/russian_speech/
+                - /groups/gce50978/Audio_data/DATASETS/DNS_Challenge/Sampled/spanish_speech/
+                - /groups/gce50978/Audio_data/DATASETS/Common_Voice/Sampled/cv-corpus-17.0-2024-03-15/en/clips/
+        music_hq:
+                - /groups/gce50978/Audio_data/DATASETS/MUSDB/Sampled/train/
+        music_uq:
+                - /groups/gce50978/Audio_data/DATASETS/JAMENDO/Sampled/
+        general:
+                - /groups/gce50978/user/koichi/backups/share/dataset/audio/audioset/audioset_tagging_cnn/audios/audioset/train/wav_44k/
+                - /groups/gce50978/Audio_data/DATASETS/AudioSet/Sampled/Balanced_Train/
+
+val/build_dataset.folders:
+        speech_hq:
+                - /groups/gce50978/Audio_data/DATASETS/DAPS/Sampled/val/
+        music_hq:
+                - /groups/gce50978/Audio_data/DATASETS/MUSDB/Sampled/test/
+        general:
+                - /groups/gce50978/Audio_data/DATASETS/AudioSet/Sampled/eval/
+
+test/build_dataset.folders:
+        speech_hq:
+                - /groups/gce50978/Audio_data/DATASETS/DAPS/Sampled/test/
+        music_hq:
+                - /groups/gce50978/Audio_data/DATASETS/MUSDB/Sampled/test/
+        general:
+                - /groups/gce50978/Audio_data/DATASETS/AudioSet/Sampled/eval/
+

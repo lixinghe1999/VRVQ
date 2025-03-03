@@ -1,0 +1,28 @@
+$include:
+  - conf/a100/base_a.yml
+  - conf/a100/1gpu_a.yml
+
+DACPrior.quantizer_dropout: 0.0  ## 0.3: full, 0.7: prior training
+DACPrior.full_codebook_rate: 0.0
+
+## Prior rate = 1 - full_codebook_rate - random_range
+
+DACPrior.set_prior: 'melspec_energy'
+DACPrior.random_range: 3
+DACPrior.fixed_depth: 2
+
+
+amp: false
+batch_size: 8
+val_batch_size: 8
+
+# fix_generator_iters: 1000
+# load_pretrained: true
+
+resume: true
+load_weights: true
+
+
+
+num_iters: 400000
+save_iters: []

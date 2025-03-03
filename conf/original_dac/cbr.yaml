@@ -1,0 +1,8 @@
+$include:
+  - conf/base.yml
+  - conf/training.yml
+  - conf/dataset.yml
+
+
+DAC_VRVQ.model_type: "VBR"
+DAC_VRVQ.quantizer_dropout: 0.5

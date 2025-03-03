@@ -1,0 +1,52 @@
+$include:
+  - conf/a100/base_a.yml
+  - conf/a100/1gpu_a.yml
+
+## No LUFS / volume change
+
+num_iters: 500000
+save_iters: []
+
+batch_size: 8
+val_batch_size: 8
+
+
+DACImp.quantizer_dropout: 0.0  # 0
+DACImp.full_codebook_rate: 0.0 # 0
+DACImp.use_framewise_masking: false
+
+DACImp.n_codebooks: 8
+DACImp.imp_model_ver: "v2"
+DACImp.random_level: 2.0
+DACImp.random_range: 2
+
+lambdas:
+  mel/loss: 15.0
+  adv/feat_loss: 2.0
+  adv/gen_loss: 1.0
+  vq/commitment_loss: 0.25
+  vq/codebook_loss: 1.0
+  vq/rate_loss: 0.6  ## [0.0001, 0.2] * 15 * 33 = [0.05, 100.]
+
+
+VolumeNorm.db: [const, -16]
+VolumeNorm.prob: 0.1
+
+VolumeChange.db: ["uniform", -100.0, 0.0]
+VolumeChange.prob: 0.1
+
+# Transforms
+build_transform.preprocess:
+  - Identity
+build_transform.augment_prob: 0.0
+build_transform.augment:
+  - Identity
+build_transform.postprocess:
+  - VolumeChange
+  - RescaleAudio
+  - ShiftPhase
+  # - VolumeNorm
+
+# resume: true
+# tag: 'best'
+# load_weights: true

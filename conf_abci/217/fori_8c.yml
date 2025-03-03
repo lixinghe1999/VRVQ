@@ -1,0 +1,16 @@
+$include:
+  - conf/217/base217.yml
+  - conf/217/1gpu217.yml 
+
+num_iters: 800000  
+save_iters: [500000]
+
+## 개당=> ㅇㅇ. 16/4 = 개당 4. => 대충 몇 정도?
+## 개당 8 => 다른 gpu에선 20000 먹었음.
+## 개당 6 해 봅시다. => 총 24
+batch_size: 16
+val_batch_size: 4
+
+
+DAC.quantizer_dropout: 0.5
+DAC.n_codebooks: 8

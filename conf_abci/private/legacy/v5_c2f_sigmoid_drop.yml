@@ -1,0 +1,32 @@
+$include:
+  - conf/private/base_p.yml
+  - conf/private/1gpu_p.yml
+
+# amp: false
+# batch_size: 8
+# val_batch_size: 8
+
+num_iters: 500000
+save_iters: []
+
+# VDAC5.learnt_prob_dropout: 0.2
+# VDAC5.prior_dropout: 0.2
+# VDAC5.quantizer_dropout: 0.3
+
+VDAC5.quantizer_dropout: 0.2
+VDAC5.full_codebook_rate: 0.3
+
+VDAC5.use_framewise_masking: false # vardrop for random masking # vardrop is not good i think...
+VDAC5.use_framewise_threshold: false # framewise random threshold for probs
+VDAC5.cumulative_p: true # skip
+
+
+### options
+VDAC5.prob_ftn_type: 'sigmoid' # 'sigmoid' or 'bell'
+VDAC5.prob_criteria: 'residual' # 'z_q_i', z_e_norm=>모든 depth에 같은 criteria임. prior?
+VDAC5.detach_criteria: false # detach criteria: gradient가 "residual"로 흐르지 않도록 함.
+VDAC5.fixed_depth: 1 ## only used when quantizer_dropout > 0
+VDAC5.lambda_prob: 4.0
+
+resume: true
+load_weights: false

@@ -1,0 +1,26 @@
+$include:
+  - conf/private/base_p.yml
+  - conf/private/1gpu_p.yml
+
+num_iters: 500000
+save_iters: []
+
+batch_size: 8
+val_batch_size: 8
+
+
+DACImp.quantizer_dropout: 0.2
+DACImp.full_codebook_rate: 0.3
+DACImp.use_framewise_masking: true
+
+lambdas:
+  mel/loss: 15.0
+  adv/feat_loss: 2.0
+  adv/gen_loss: 1.0
+  vq/commitment_loss: 0.25
+  vq/codebook_loss: 1.0
+  vq/rate_loss: 1.0  ## [0.0001, 0.2] * 15 * 33 = [0.05, 100.]
+
+# resume: true
+# tag: 'best'
+# load_weights: true

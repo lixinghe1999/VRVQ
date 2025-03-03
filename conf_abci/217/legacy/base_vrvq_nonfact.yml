@@ -1,0 +1,39 @@
+$include:
+  - conf/base.yml
+  - conf/1gpu.yml
+
+amp: true
+batch_size: 16
+val_batch_size: 16
+
+num_iters: 400000
+save_iters: []
+
+
+VDAC_NonFactorized.sample_rate: 44100
+VDAC_NonFactorized.encoder_dim: 64
+VDAC_NonFactorized.encoder_rates: [2, 4, 8, 8]
+VDAC_NonFactorized.decoder_dim: 1536
+VDAC_NonFactorized.decoder_rates: [8, 8, 4, 2]
+
+# Quantization
+VDAC_NonFactorized.n_codebooks: 9
+VDAC_NonFactorized.codebook_size: 1024
+VDAC_NonFactorized.codebook_dim: 1024 ## no factorization
+VDAC_NonFactorized.quantizer_dropout: 1.0
+
+VDAC_NonFactorized.quantizer_dropout: 0.2
+VDAC_NonFactorized.full_codebook_rate: 0.2
+VDAC_NonFactorized.alpha_dist: 1.0
+
+# train/build_dataset.folders:
+#   general:
+#     - /data/yoongidata/audio/balanced_train_segments
+
+# val/build_dataset.folders:
+#   general:
+#     - /data/yoongidata/audio/eval_segments
+
+# test/build_dataset.folders:
+#   general:
+#     - /data/yoongidata/audio/eval_segments

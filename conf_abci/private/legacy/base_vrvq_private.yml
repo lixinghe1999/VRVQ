@@ -1,0 +1,26 @@
+$include:
+  - conf/base.yml
+  - conf/1gpu.yml
+
+amp: true
+batch_size: 16
+val_batch_size: 16
+
+num_iters: 400000
+save_iters: []
+
+VDAC.quantizer_dropout: 0.2
+VDAC.full_codebook_rate: 0.2
+VDAC.alpha_dist: 1.0
+
+train/build_dataset.folders:
+  general:
+    - /data/yoongidata/audio/balanced_train_segments
+
+val/build_dataset.folders:
+  general:
+    - /data/yoongidata/audio/eval_segments
+
+test/build_dataset.folders:
+  general:
+    - /data/yoongidata/audio/eval_segments

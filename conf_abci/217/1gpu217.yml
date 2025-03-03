@@ -1,0 +1,6 @@
+$include:
+  - conf/217/base217.yml
+
+batch_size: 16
+val_batch_size: 4
+num_workers: 8
