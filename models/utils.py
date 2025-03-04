@@ -2,13 +2,9 @@ import torch
 import math
 from einops import rearrange
 import numpy as np
-# from torchmetrics.audio import PerceptualEvaluationSpeechQuality as PESQ
-# from torchmetrics.audio import ShortTimeObjectiveIntelligibility as STOI
 # import torchmetrics
 import torchmetrics
 import audiotools
-# from torchmetrics.audio import DeepNoiseSuppressionMeanOpinionScore as DNSMOS
-# from torchmetrics.audio import NonIntrusiveSpeechQualityAssessment as NISQA
 from copy import deepcopy
 import time 
 

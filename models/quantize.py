@@ -1,3 +1,7 @@
+"""
+This code is heavily adapted and modified from the original DAC GitHub repository.  
+Original source: https://github.com/descriptinc/descript-audio-codec/blob/main/dac/nn/quantize.py
+"""
 from typing import Union
 import math
 import numpy as np

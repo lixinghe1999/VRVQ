@@ -1,3 +1,9 @@
+"""
+This code is a modified version of `AudioLoader` and `AudioDataset` 
+from the `audiotools.data.datasets` module.
+Original source: https://github.com/descriptinc/audiotools/blob/master/audiotools/data/datasets.py
+"""
+
 import os ; opj=os.path.join
 import re
 from audiotools import AudioSignal

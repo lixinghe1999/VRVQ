@@ -1,19 +1,13 @@
 """
-Implementation of VQ similar to Karpathy's repo:
-https://github.com/karpathy/deep-vector-quantization
-Additionally uses following tricks from Improved VQGAN
-(https://arxiv.org/pdf/2110.04627.pdf):
-    1. Factorized codes: Perform nearest neighbor lookup in low-dimensional space
-        for improved codebook usage
-    2. l2-normalized codes: Converts euclidean distance to cosine similarity which
-        improves training stability
+This code is heavily adapted and modified from the original DAC training code.  
+Original source: https://github.com/descriptinc/descript-audio-codec/blob/main/scripts/train.py
 """
-
 import os
 import sys
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
+
 
 import argbind
 import torch
@@ -30,10 +24,7 @@ from time import time
 from tqdm import tqdm
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
-# import model.dac as dac
 from models.utils import cal_bpf_from_mask, cal_entropy
-# from data.loaders import AudioLoader_EARS_Clean, AudioDataset_EARS_Clean
-# from audiotools.data.datasets import AudioDataset
 from data.loaders import AudioLoader, AudioDataset, ConcatDataset
 
 from models.dac_vrvq import DAC_VRVQ
@@ -41,6 +32,7 @@ from models.discriminator import Discriminator
 from models import loss
 
 warnings.filterwarnings("ignore", category=UserWarning)
+
 # Enable cudnn autotuner to speed up training
 # (can be altered by the funcs.seed function)
 torch.backends.cudnn.benchmark = bool(int(os.getenv("CUDNN_BENCHMARK", 1)))
@@ -488,36 +480,33 @@ def train(
     checkpoint = when(lambda: accel.local_rank == 0)(checkpoint)
     
 
-    for tracker.step, batch in enumerate(train_dataloader, start=tracker.step): ## 이 라인이 오래 걸림.
-        # if tracker.step % 50 == 0:
-        #     print(f"Config: {args["args.load"]}")
-        #     print("Step:", tracker.step)
+    # for tracker.step, batch in enumerate(train_dataloader, start=tracker.step): 
+    #     if tracker.step % 50 == 0:
+    #         config_path = args["args.load"]
+    #         print(f"Config: {config_path}")
+    #         print("Step:", tracker.step)
         
-        output_loop = train_loop(state, batch, accel, lambdas)
+    #     output_loop = train_loop(state, batch, accel, lambdas)
 
-        last_iter = (
-            tracker.step == num_iters - 1 if num_iters is not None else False
-        )
-        if tracker.step % sample_freq == 0 or last_iter:
-            save_samples(state, val_idx, writer)
+    #     last_iter = (
+    #         tracker.step == num_iters - 1 if num_iters is not None else False
+    #     )
+    #     if tracker.step % sample_freq == 0 or last_iter:
+    #         save_samples(state, val_idx, writer)
 
-        if tracker.step % valid_freq == 0 or last_iter:
-            validate(state, val_dataloader, accel)
-            checkpoint(state, save_iters, save_path, package=save_package)
-            # Reset validation progress bar, print summary since last validation.
-            tracker.done("val", f"Iteration {tracker.step}")
+    #     if tracker.step % valid_freq == 0 or last_iter:
+    #         validate(state, val_dataloader, accel)
+    #         checkpoint(state, save_iters, save_path, package=save_package)
+    #         # Reset validation progress bar, print summary since last validation.
+    #         tracker.done("val", f"Iteration {tracker.step}")
 
-        if last_iter:
-            break 
+    #     if last_iter:
+    #         break 
     
-    assert False
+    # assert False
 
     with tracker.live:
-        for tracker.step, batch in enumerate(train_dataloader, start=tracker.step): ## 이 라인이 오래 걸림.
-            # if tracker.step % 50 == 0:
-            #     print(f"Config: {args["args.load"]}")
-            #     print("Step:", tracker.step)
-            
+        for tracker.step, batch in enumerate(train_dataloader, start=tracker.step): 
             output_loop = train_loop(state, batch, accel, lambdas)
 
             last_iter = (

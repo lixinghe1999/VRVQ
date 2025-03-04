@@ -3,7 +3,7 @@
 train/AudioDataset.duration: 0.38
 train/AudioDataset.n_examples: 10000000
 
-val/AudioDataset.duration: 5.0
+val/AudioDataset.duration: 3.0
 val/build_transform.augment_prob: 1.0
 val/AudioDataset.n_examples: 64
 

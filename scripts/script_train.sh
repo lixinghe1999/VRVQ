@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-## ex) in VRVQ/, bash scripts/script_train.sh vrvq/vrvq_a2 2,3
+## ex for multi_gpu) in VRVQ/, bash scripts/script_train.sh vrvq/vrvq_a2 2,3
 CONFIG_DIR="conf"
 SAVE_DIR="/data2/yoongi/vrvq_github"
 
@@ -44,20 +44,3 @@ if [ "$NUM_GPUS" -eq 1 ]; then
 else
     run_training_multi
 fi
-
-# run_training_multi()
-
-# ## Single GPU
-# if [ -z "${RESUME}" ]; then
-#     python scripts/train.py --args.load ${CONFIG_DIR}/${EXPNAME}.yml --save_path ${SAVE_DIR}/${EXPNAME}
-# else
-#     python scripts/train.py --args.load ${CONFIG_DIR}/${EXPNAME}.yml --save_path ${SAVE_DIR}/${EXPNAME} --resume
-# fi
-
-# ## Multi GPU
-# if [ -z "${RESUME}" ]; then
-#     torchrun --nproc_per_node gpu scripts/train.py --args.load ${CONFIG_DIR}/${EXPNAME}.yml --save_path ${SAVE_DIR}/${EXPNAME}
-# else
-#     torchrun --nproc_per_node gpu scripts/train.py --args.load ${CONFIG_DIR}/${EXPNAME}.yml --save_path ${SAVE_DIR}/${EXPNAME} --resume
-# fi
-

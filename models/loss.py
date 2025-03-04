@@ -1,3 +1,8 @@
+"""
+This code is copied from the original dac repository.
+source: https://github.com/descriptinc/descript-audio-codec/blob/main/dac/nn/loss.py
+"""
+
 import typing
 from typing import List, Union
 
@@ -585,16 +590,6 @@ class MelSpectrogramLossFramewise(nn.Module):
                                     center=False)
             for n_mel, w, fmin, fmax in zip(n_mels, window_lengths, mel_fmin, mel_fmax)
         ])
-        # self.meltransform_list = [
-        #     T.MelSpectrogram(sample_rate=sr,
-        #                             n_mels=n_mel,
-        #                             n_fft=w,
-        #                             hop_length=w,
-        #                             f_min=fmin,
-        #                             f_max=fmax,
-        #                             center=False).to('cuda')
-        #     for n_mel, w, fmin, fmax in zip(n_mels, window_lengths, mel_fmin, mel_fmax)
-        # ]
 
     def forward(self, x, y, window_size=None):
         loss = 0.0
@@ -609,104 +604,9 @@ class MelSpectrogramLossFramewise(nn.Module):
             )
             if self.mag_weight > 0:
                 loss_in_loop += self.mag_weight * self.loss_fn(x_mels, y_mels)    
-            # print("Loss in loop mean: ", loss_in_loop.mean())
             loss_in_loop = loss_in_loop.mean(dim=-2) # (B, 1, mel, frames) -> (B, 1, frames)
             loss += loss_in_loop
         
         loss = loss.squeeze(1)
-        # print("#### Melspec Framewise loss ####")
-        # print(loss)
         return loss
     
-
-## Duplicate Melspectrogramloss for argbind
-class MelSpectrogramLossDuplicate(nn.Module):
-
-    def __init__(
-        self,
-        n_mels: List[int] = [150, 80],
-        window_lengths: List[int] = [2048, 512],
-        loss_fn: typing.Callable = nn.MSELoss(),
-        # loss_fn: Union[typing.Callable, List[typing.Callable]] = nn.L1Loss(),
-        clamp_eps: float = 1e-5,
-        mag_weight: float = 1.0,
-        log_weight: float = 1.0,
-        pow: float = 2.0,
-        # pow: Union[float, List[float]] = 2.0,
-        weight: float = 1.0,
-        match_stride: bool = False,
-        mel_fmin: List[float] = [0.0, 0.0],
-        mel_fmax: List[float] = [None, None],
-        window_type: str = None,
-        reduction='mean',
-    ):
-        super().__init__()
-        self.stft_params = [
-            STFTParams(
-                window_length=w,
-                hop_length=w // 4,
-                match_stride=match_stride,
-                window_type=window_type,
-            )
-            for w in window_lengths
-        ]
-        self.n_mels = n_mels
-        self.loss_fn = loss_fn
-            
-        self.clamp_eps = clamp_eps
-        self.log_weight = log_weight
-        self.mag_weight = mag_weight
-        self.weight = weight
-        self.mel_fmin = mel_fmin
-        self.mel_fmax = mel_fmax
-        self.reduction=reduction
-        self.pow = pow
-        
-        # import pdb; pdb.set_trace()
-        # print('pow: ', pow) ## Argbind로 어떻게 설정?
-        
-        # if not isinstance(pow, list):
-        #     self.pow = [pow]
-        # else:
-        #     self.pow = pow
-    
-    def forward(self, x: AudioSignal, y: AudioSignal):
-        """Computes mel loss between an estimate and a reference
-        signal.
-
-        Parameters
-        ----------
-        x : AudioSignal
-            Estimate signal
-        y : AudioSignal
-            Reference signal
-
-        Returns
-        -------
-        torch.Tensor
-            Mel loss.
-        """
-        loss = 0.0
-        # import pdb; pdb.set_trace()
-        
-
-        for n_mels, fmin, fmax, s in zip(
-            self.n_mels, self.mel_fmin, self.mel_fmax, self.stft_params
-        ):
-            kwargs = {
-                "window_length": s.window_length,
-                "hop_length": s.hop_length,
-                "window_type": s.window_type,
-            }
-            x_mels = x.mel_spectrogram(n_mels, mel_fmin=fmin, mel_fmax=fmax, **kwargs)
-            y_mels = y.mel_spectrogram(n_mels, mel_fmin=fmin, mel_fmax=fmax, **kwargs)
-
-            loss += self.log_weight * self.loss_fn(
-                x_mels.clamp(self.clamp_eps).pow(self.pow).log10(),
-                y_mels.clamp(self.clamp_eps).pow(self.pow).log10(),
-            )
-            loss += self.mag_weight * self.loss_fn(x_mels, y_mels)
-        #     print("Loss in final : ", loss.mean())
-        # print("#### Melspec final loss ####")
-        # print(loss)
-        return loss

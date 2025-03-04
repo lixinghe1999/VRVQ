@@ -1,3 +1,7 @@
+"""
+source: https://github.com/descriptinc/descript-audio-codec/blob/main/dac/model/base.py
+"""
+
 import math
 from dataclasses import dataclass
 from pathlib import Path
