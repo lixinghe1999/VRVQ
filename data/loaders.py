@@ -3,7 +3,9 @@ import re
 from audiotools import AudioSignal
 from audiotools.core import util
 import torch
-from typing import List, Callable
+from typing import List, Callable, Union, Dict
+# from audiotools.data.datasets import AudioLoader
+from audiotools.data.datasets import default_matcher, align_lists
 
 
 class AudioLoader:
@@ -91,54 +93,150 @@ class AudioLoader:
         if duration is not None:
             if signal.duration < duration:
                 signal = signal.zero_pad_to(int(duration * sample_rate))
-        
-        items = {
+                
+        for k, v in audio_info.items():
+            signal.metadata[k] = v
+            
+        item = {
             "signal": signal,
             "source_idx": source_idx,
             "item_idx": item_idx,
             "source": str(self.sources[source_idx]),
             "path": str(path),
         }
-        
-        return items
+        if self.transform is not None:
+            item["transform_args"] = self.transform.instantiate(state, signal=signal)
+        return item
     
 
-# class AudioDataset:
-#     def __init__(
-#         self, 
-#         loader: AudioLoader,
-#         sample_rate: int,
-#         n_examples: int,
-#         duration: float,
-#         loudness_cutoff: float = -40,
-#         num_channels: int = 1,
-#         without_replacement: bool = True
-#     ):
-#         self.loader = loader
-#         self.sample_rate = sample_rate
-#         self.n_examples = n_examples
-#         self.duration = duration
-#         self.loudness_cutoff = loudness_cutoff
-#         self.num_channels = num_channels
-#         self.without_replacement = without_replacement
-    
-#     def __len__(self):
-#         return self.n_examples
-    
-#     def __getitem__(self, idx):
-#         state = util.random_state(idx)
-#         loader_kwargs = {
-#             "state": state,
-#             "sample_rate": self.sample_rate,
-#             "duration": self.duration,
-#             "loudness_cutoff": self.loudness_cutoff,
-#             "num_channels": self.num_channels,
-#             "item_idx": idx if self.without_replacement else None
-#         }
-#         item = self.loader(**loader_kwargs)
-#         item["idx"] = idx
-#         return item
-    
-#     @staticmethod
-#     def collate(list_of_dicts, n_splits=None):
-#         return util.collate(list_of_dicts, n_splits=n_splits)
+
+class AudioDataset:
+    def __init__(
+        self,
+        loaders: Union[AudioLoader, List[AudioLoader], Dict[str, AudioLoader]],
+        sample_rate: int,
+        n_examples: int = 1000,
+        duration: float = 0.5,
+        offset: float = None,
+        loudness_cutoff: float = -40,
+        num_channels: int = 1,
+        transform: Callable = None,
+        aligned: bool = False,
+        shuffle_loaders: bool = False,
+        matcher: Callable = default_matcher,
+        without_replacement: bool = True,
+    ):
+        # Internally we convert loaders to a dictionary
+        if isinstance(loaders, list):
+            loaders = {i: l for i, l in enumerate(loaders)}
+        elif isinstance(loaders, AudioLoader):
+            loaders = {0: loaders}
+
+        self.loaders = loaders
+        self.loudness_cutoff = loudness_cutoff
+        self.num_channels = num_channels
+
+        self.length = n_examples
+        self.transform = transform
+        self.sample_rate = sample_rate
+        self.duration = duration
+        self.offset = offset
+        self.aligned = aligned
+        self.shuffle_loaders = shuffle_loaders
+        self.without_replacement = without_replacement
+
+        if aligned:
+            loaders_list = list(loaders.values())
+            for i in range(len(loaders_list[0].audio_lists)):
+                input_lists = [l.audio_lists[i] for l in loaders_list]
+                # Alignment happens in-place
+                align_lists(input_lists, matcher)
+
+    def __getitem__(self, idx):
+        state = util.random_state(idx)
+        offset = None if self.offset is None else self.offset
+        item = {}
+        keys = list(self.loaders.keys())
+        if self.shuffle_loaders:
+            state.shuffle(keys)
+
+        loader_kwargs = {
+            "state": state,
+            "sample_rate": self.sample_rate,
+            "duration": self.duration,
+            "loudness_cutoff": self.loudness_cutoff,
+            "num_channels": self.num_channels,
+            "global_idx": idx if self.without_replacement else None,
+        }
+
+        # Draw item from first loader
+        loader = self.loaders[keys[0]]
+        item[keys[0]] = loader(**loader_kwargs)
+
+        for key in keys[1:]:
+            loader = self.loaders[key]
+            if self.aligned:
+                # Path mapper takes the current loader + everything
+                # returned by the first loader.
+                offset = item[keys[0]]["signal"].metadata["offset"]
+                loader_kwargs.update(
+                    {
+                        "offset": offset,
+                        "source_idx": item[keys[0]]["source_idx"],
+                        "item_idx": item[keys[0]]["item_idx"],
+                    }
+                )
+            item[key] = loader(**loader_kwargs)
+
+        # Sort dictionary back into original order
+        keys = list(self.loaders.keys())
+        item = {k: item[k] for k in keys}
+
+        item["idx"] = idx
+        if self.transform is not None:
+            item["transform_args"] = self.transform.instantiate(
+                state=state, signal=item[keys[0]]["signal"]
+            )
+
+        # If there's only one loader, pop it up
+        # to the main dictionary, instead of keeping it
+        # nested.
+        if len(keys) == 1:
+            item.update(item.pop(keys[0]))
+
+        return item
+
+    def __len__(self):
+        return self.length
+
+    @staticmethod
+    def collate(list_of_dicts: Union[list, dict], n_splits: int = None):
+        """Collates items drawn from this dataset. Uses
+        :py:func:`audiotools.core.util.collate`.
+
+        Parameters
+        ----------
+        list_of_dicts : typing.Union[list, dict]
+            Data drawn from each item.
+        n_splits : int
+            Number of splits to make when creating the batches (split into
+            sub-batches). Useful for things like gradient accumulation.
+
+        Returns
+        -------
+        dict
+            Dictionary of batched data.
+        """
+        return util.collate(list_of_dicts, n_splits=n_splits)
+
+
+class ConcatDataset(AudioDataset):
+    def __init__(self, datasets: list):
+        self.datasets = datasets
+
+    def __len__(self):
+        return sum([len(d) for d in self.datasets])
+
+    def __getitem__(self, idx):
+        dataset = self.datasets[idx % len(self.datasets)]
+        return dataset[idx // len(self.datasets)]

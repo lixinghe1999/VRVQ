@@ -96,16 +96,12 @@ class DAC_VRVQ(BaseModel, CodecMixin):
         ## VBR Configs
         model_type: str="VBR", ## in ["VBR", "CBR"]
         full_codebook_rate: float=0.0,  ## rate of samples to use full number of codebooks
-        use_framewise_dropout: bool=False, ## Apply random quantizer dropout to each frame
         level_min: float=None, ## minimum Scale factor
         level_max: float=None, ## maximum Scale factor
         level_dist: str="uniform", ## in ["uniform", "loguniform"]
-        operator_mode: str = "scaling", ## in ["scaling", "exponential", "transformed_scaling"] ## Paper: scaling
         
-        imp_map_input: str = "feature",
         detach_imp_map_input: bool = False,
         imp2mask_alpha: float = 1.0,
-        imp2mask_func: str="logcosh", ## logcosh, square, sigmoid
     ):
         super().__init__()
         self.encoder_dim = encoder_dim
@@ -125,7 +121,6 @@ class DAC_VRVQ(BaseModel, CodecMixin):
         self.n_codebooks = n_codebooks
         self.codebook_size = codebook_size
         self.codebook_dim = codebook_dim
-        self.imp_map_input = imp_map_input
         
         self.model_type = model_type
         
@@ -157,15 +152,11 @@ class DAC_VRVQ(BaseModel, CodecMixin):
                 quantizer_dropout=quantizer_dropout,
                 ### VBR Configs
                 full_codebook_rate=full_codebook_rate,
-                use_framewise_masking=use_framewise_dropout,
                 level_min=level_min,
                 level_max=level_max,
                 level_dist=level_dist,
-                operator_mode=operator_mode,
-                imp_map_input=imp_map_input,
                 detach_imp_map_input=detach_imp_map_input,
                 imp2mask_alpha=imp2mask_alpha,
-                imp2mask_func=imp2mask_func,
             )
         else:
             raise ValueError(f"Invalid RVQ model_type: {model_type}")

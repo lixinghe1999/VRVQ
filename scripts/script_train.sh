@@ -1,11 +1,15 @@
 #!/bin/bash
 
+
+## ex) in VRVQ/, bash scripts/script_train.sh vrvq/vrvq_a2 2,3
 CONFIG_DIR="conf"
 SAVE_DIR="/data2/yoongi/vrvq_github"
 
 EXPNAME=${1}
 GPU=${2}
 RESUME=${3}
+
+PORT=29550
 
 RESUME_FLAG=""
 if [ -n "$RESUME" ]; then
@@ -28,10 +32,12 @@ run_training_single() {
 ## Multi GPU
 run_training_multi() {
     # CMD="torchrun --nproc_per_node=${GPU} scripts/train.py --args.load ${CONFIG_DIR}/${EXPNAME}.yml --save_path ${SAVE_DIR}/${EXPNAME} ${RESUME_FLAG}"
-    CMD="CUDA_VISIBLE_DEVICES=${GPU} torchrun --nproc_per_node gpu scripts/train.py --args.load ${CONFIG_DIR}/${EXPNAME}.yml --save_path ${SAVE_DIR}/${EXPNAME} ${RESUME_FLAG}"
+    # CMD="CUDA_VISIBLE_DEVICES=${GPU} MASTER_ADDR=localhost MASTER_PORT=$PORT torchrun --nproc_per_node gpu --master_port=$PORT scripts/train.py --args.load ${CONFIG_DIR}/${EXPNAME}.yml --save_path ${SAVE_DIR}/${EXPNAME} ${RESUME_FLAG}"
+    CMD="CUDA_VISIBLE_DEVICES=${GPU} MASTER_ADDR=localhost MASTER_PORT=$PORT python -m torch.distributed.run --nproc_per_node gpu --master_port=$PORT scripts/train.py --args.load ${CONFIG_DIR}/${EXPNAME}.yml --save_path ${SAVE_DIR}/${EXPNAME} ${RESUME_FLAG}"
     echo "Running Multi GPU: $CMD"
     eval "$CMD"
 }
+
 
 if [ "$NUM_GPUS" -eq 1 ]; then
     run_training_single

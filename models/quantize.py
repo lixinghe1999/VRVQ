@@ -9,7 +9,7 @@ from torch.nn.utils import weight_norm
 
 from .layers import WNConv1d
 from .importance_subnet import ImportanceSubnet
-from .utils import generate_mask_ste, apply_straight, generate_mask_hard
+from .utils import generate_mask_ste, generate_mask_hard
 
 EPS = 1e-10
 
@@ -384,7 +384,6 @@ class VBRResidualVectorQuantize(ResidualVectorQuantize):
                 imp_map_scaled,
                 self.n_codebooks,
                 alpha=self.imp2mask_alpha,
-                function=self.imp2mask_func,
             ) ## mask_imp: (B, Nq, T)
         
         elif mode == "CBR":
@@ -403,7 +402,6 @@ class VBRResidualVectorQuantize(ResidualVectorQuantize):
             n_imps = int(bs) - n_full - n_dropout
             
             dropout_mask = generate_mask_hard(dropout[:n_dropout], self.n_codebooks) ## (B, Nq, T)
-            
             mask_imp[n_imps:n_imps+n_dropout] = dropout_mask.detach()
             mask_imp[n_imps+n_dropout:] = 1.0
         else:

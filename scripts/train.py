@@ -21,7 +21,7 @@ from audiotools import AudioSignal
 from audiotools import ml
 from audiotools.core import util
 from audiotools.data import transforms
-from audiotools.data.datasets import ConcatDataset
+# from audiotools.data.datasets import ConcatDataset
 from audiotools.ml.decorators import timer
 from audiotools.ml.decorators import Tracker
 from audiotools.ml.decorators import when
@@ -33,8 +33,8 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 # import model.dac as dac
 from models.utils import cal_bpf_from_mask, cal_entropy
 # from data.loaders import AudioLoader_EARS_Clean, AudioDataset_EARS_Clean
-from audiotools.data.datasets import AudioDataset
-from data.loaders import AudioLoader
+# from audiotools.data.datasets import AudioDataset
+from data.loaders import AudioLoader, AudioDataset, ConcatDataset
 
 from models.dac_vrvq import DAC_VRVQ
 from models.discriminator import Discriminator
@@ -486,6 +486,31 @@ def train(
     # These functions run only on the 0-rank process
     save_samples = when(lambda: accel.local_rank == 0)(save_samples)
     checkpoint = when(lambda: accel.local_rank == 0)(checkpoint)
+    
+
+    for tracker.step, batch in enumerate(train_dataloader, start=tracker.step): ## 이 라인이 오래 걸림.
+        # if tracker.step % 50 == 0:
+        #     print(f"Config: {args["args.load"]}")
+        #     print("Step:", tracker.step)
+        
+        output_loop = train_loop(state, batch, accel, lambdas)
+
+        last_iter = (
+            tracker.step == num_iters - 1 if num_iters is not None else False
+        )
+        if tracker.step % sample_freq == 0 or last_iter:
+            save_samples(state, val_idx, writer)
+
+        if tracker.step % valid_freq == 0 or last_iter:
+            validate(state, val_dataloader, accel)
+            checkpoint(state, save_iters, save_path, package=save_package)
+            # Reset validation progress bar, print summary since last validation.
+            tracker.done("val", f"Iteration {tracker.step}")
+
+        if last_iter:
+            break 
+    
+    assert False
 
     with tracker.live:
         for tracker.step, batch in enumerate(train_dataloader, start=tracker.step): ## 이 라인이 오래 걸림.
