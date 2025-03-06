@@ -26,3 +26,15 @@ conda activate vrvq
 conda install pytorch==2.2.2 torchvision==0.17.2 torchaudio==2.2.2 pytorch-cuda=11.8 -c pytorch -c nvidia  ## We used this command for PyTorch install
 pip install -r requirements.txt
 ```
+
+## Training example
+```bash
+# ex) bash scripts/script_train.sh $EXP_PATH $GPU
+
+# Single GPU
+bash scripts/scripts_train.sh vrvq/vrvq_a2 0
+
+# Multi GPU
+bash scripts/scripts_train.sh vrvq/vrvq_a2 0,1
+```
+

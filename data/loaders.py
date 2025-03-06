@@ -84,11 +84,14 @@ class AudioLoader:
                             loudness_cutoff=loudness_cutoff,
                         )
                     except Exception as e:
-                        ### AudioSignal has 6 channels
-                        ###  /data2/yoongi/dataset/audioset_wav44/wavs/balanced_train/000003/id_s-HejPHC-Hk.wav
-                        signal = AudioSignal(path, 
-                                            offset=0,
-                                            duration=duration)
+                        if isinstance(e, RuntimeError) and "is empty" in str(e):
+                            signal = AudioSignal.zeros(duration, sample_rate, num_channels)
+                        else:
+                            ### AudioSignal has (larger than) 5 channels (6 channels)
+                            ###  /data2/yoongi/dataset/audioset_wav44/wavs/balanced_train/000003/id_s-HejPHC-Hk.wav
+                            signal = AudioSignal(path, 
+                                                offset=0,
+                                                duration=duration)
                 else:
                     signal = AudioSignal(path, offset=offset, duration=duration)
                     

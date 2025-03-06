@@ -5,6 +5,7 @@ $include:
   # - conf/dataset_small.yml
   - conf/dataset_music_speech.yml
 
+resume: true
 
 DAC_VRVQ.model_type: "VBR"
 DAC_VRVQ.full_codebook_rate: 0.25
