@@ -4,6 +4,9 @@ This repository contains official implementation of the paper **Variable Bitrate
 - **Accepted at NeurIPS 2024 Machine Learning and Compression Workshop** 
 - **Accepted at ICASSP 2025**  
 
+**This repository is not complete. Functions, features, or scripts are not fully implemented. I will complete it as soon as possible.**
+
+
 ## 🔊 Audio Samples: 
 Importance map and audio samples are available at: Link
 
