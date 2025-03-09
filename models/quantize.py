@@ -427,6 +427,7 @@ class VBRResidualVectorQuantize(ResidualVectorQuantize):
             
         out_dict = {
             "z_q": z_q,
+            "z_q_is": z_q_is_stack,
             "codes": codes,
             "latents": latents,
             "commitment_loss": commitment_loss,

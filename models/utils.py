@@ -78,7 +78,7 @@ def cal_entropy(bincount_list):
     return entropy_list, pct_list
 
 
-def cal_metrics(recons, signal, state, loss_fn="mel"):
+def cal_metrics(recons, signal, state=None, loss_fn="mel"):
     if loss_fn == "mel":
         return state.mel_loss(recons, signal).item()
     elif loss_fn == "stft":
@@ -117,8 +117,6 @@ def cal_metrics(recons, signal, state, loss_fn="mel"):
         result = torchmetrics.functional.signal_noise_ratio(recons, signal)
         result = result.mean().item()
         return result
-    elif loss_fn == "DAC-SISDR":
-        return state.dac_sisdr_loss(signal, recons).item()
     elif loss_fn == "ViSQOL":
         ## resample to 48k
         result = audiotools.metrics.quality.visqol(recons, signal)
