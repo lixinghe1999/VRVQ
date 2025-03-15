@@ -79,10 +79,14 @@ def inference(
     encoded: "z_q", "codes", "latents", "commitment_loss", "codebook_loss", "imp_map", "mask_imp"
     """
     with torch.no_grad():
-        level = 1
+        level = 1 # Dummy value
         audio_tensor = model.preprocess(audio_tensor, model.sample_rate)
         encoded = model.encode(audio_tensor, n_quantizers=None, level=level)
-        decoded = model.decode(encoded['z_q'])
+        # decoded = model.decode(encoded['z_q'])
+        codes = encoded['codes'] # (B, Nq, T)
+        z_q_is = encoded['z_q_is'] # (B, Nq, D, T)
+        imp_map = encoded['imp_map'] # (B, Nq, T)
+        
     
     ## Results
     print("Audio: ", audio_file)
@@ -141,8 +145,8 @@ def save_results(model, input_tensor, level_list, save_result_dir):
     for level in level_list:
         level_scaled = level*n_q
         imp_map_scaled = imp_map * level_scaled
-        mask_imp = generate_mask_hard(imp_map_scaled, nq=n_q)
-        z_q_is = enc_out["z_q_is"]
+        mask_imp = generate_mask_hard(imp_map_scaled, nq=n_q) # (B, Nq, T)
+        z_q_is = enc_out["z_q_is"] # (B, Nq, D, T)
         z_q = torch.sum(z_q_is * mask_imp[:,:,None,:], dim=1, keepdim=False) # (B, D, T)
         recon = model.decode(z_q)
         save_mask_imp(mask_imp, level_scaled, save_dir)
