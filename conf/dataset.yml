@@ -20,41 +20,26 @@ AudioDataset.without_replacement: true
 ## /data_s = /scratch/acg17028ub
 
 train/build_dataset.folders:
-        speech_fb:
-                - /data2/yoongi/dataset/daps/train/
         speech_hq:
-                - /data2/yoongi/dataset/VCTK-Corpus/VCTK-Corpus/wav48/
-                - /data2/yoongi/dataset/DNS-Challenge/datasets_fullband/clean_fullband/vctk_wav48_silence_trimmed/
-                - /data2/yoongi/dataset/DNS-Challenge/datasets_fullband/clean_fullband/read_speech/
-                - /data2/yoongi/dataset/DNS-Challenge/datasets_fullband/clean_fullband/french_speech/
-
+                - /path/to/speech_hq1/
+                - /path/to/speech_hq2/
         speech_uq:
-                - /data2/yoongi/dataset/DNS-Challenge/datasets_fullband/clean_fullband/emotional_speech/
-                - /data2/yoongi/dataset/DNS-Challenge/datasets_fullband/clean_fullband/german_speech/
-                - /data2/yoongi/dataset/DNS-Challenge/datasets_fullband/clean_fullband/russian_speech/
-                - /data2/yoongi/dataset/DNS-Challenge/datasets_fullband/clean_fullband/spanish_speech/
-                - /data2/yoongi/dataset/cv-corpus-18.0-2024-06-14/en/
+                - /path/to/speech_uq1/
+                - /path/to/speech_uq2/
         music_hq:
-                - /data2/yoongi/dataset/musdb18hq_from_zenodo/train/
+                - /path/to/music_hq1/
+                - /path/to/music_hq2/
         music_uq:
-                - /data2/yoongi/dataset/mtg_jamendo/
+                - /path/to/music_uq1/
+                - /path/to/music_uq2/
         general:
-                - /data2/yoongi/dataset/audioset_wav44/wavs/unbalanced_train/
-                - /data2/yoongi/dataset/audioset_wav44/wavs/balanced_train/
+                - /path/to/general1/
+                - /path/to/general2/
 
 val/build_dataset.folders:
         speech_hq:
-                - /data2/yoongi/dataset/daps/test/
+                - /path/to/speech_hq/
         music_hq:
-                - /data2/yoongi/dataset/musdb18hq_from_zenodo/test/
+                - /path/to/music_hq/
         general:
-                - /data2/yoongi/dataset/audioset_wav44/wavs/eval/
-
-test/build_dataset.folders:
-        speech_hq:
-                - /data2/yoongi/dataset/daps/test/
-        music_hq:
-                - /data2/yoongi/dataset/musdb18hq_from_zenodo/test/
-        general:
-                - /data2/yoongi/dataset/audioset_wav44/wavs/eval/
-
+                - /path/to/general/

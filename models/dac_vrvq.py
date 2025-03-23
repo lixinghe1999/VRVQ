@@ -126,17 +126,6 @@ class DAC_VRVQ(BaseModel, CodecMixin):
         
         self.model_type = model_type
         
-        ## Other configs
-        # self.full_codebook_rate = full_codebook_rate
-        # self.use_framewise_dropout = use_framewise_dropout
-        # self.level_min = level_min
-        # self.level_max = level_max
-        # self.level_dist = level_dist
-        # self.operator_mode = operator_mode
-        # self.imp2mask_alpha = imp2mask_alpha
-        # self.imp2mask_func = imp2mask_func
-        
-        
         if model_type == "CBR":
             self.quantizer = ResidualVectorQuantize(
                 input_dim=latent_dim,
@@ -213,7 +202,6 @@ class DAC_VRVQ(BaseModel, CodecMixin):
         "vq/codebook_loss" : (1)
         
         """
-        # import pdb; pdb.set_trace()
         z, feat = self.encoder(audio_data, return_feat=True)
         if self.model_type == "CBR":
             quant_inp = {"z": z, "n_quantizers": n_quantizers}
@@ -223,13 +211,11 @@ class DAC_VRVQ(BaseModel, CodecMixin):
         
         out_quant_dict = self.quantizer(**quant_inp)
         return out_quant_dict
-        # return z, codes, latents, commitment_loss, codebook_loss, imp_map, mask_imp
     
     def decode(self, z: torch.Tensor):
         """
         z: (B, D, T)
             - Quantized continuous representation of input
-        
         """
         return self.decoder(z)
     

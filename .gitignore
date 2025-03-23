@@ -175,3 +175,7 @@ archived/
 encoded_out/
 recon/
 recons/
+
+scripts/inference_CBR.py
+scripts/script_infer_CBR.sh
+temp/

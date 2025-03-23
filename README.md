@@ -1,19 +1,15 @@
 # Variable Bitrate Residual Vector Quantization for Audio Coding
 
 This repository contains official implementation of the paper **Variable Bitrate Residual Vector Quantization for Audio Coding**:  
-- **Accepted at NeurIPS 2024 Machine Learning and Compression Workshop** 
-- **Accepted at ICASSP 2025**  
 
-**This repository is not complete. Functions, features, or scripts are not fully implemented. I will complete it as soon as possible.**
 
+## 📄 Paper Link
+
+- **ICASSP 2025 version**: [IEEE Xplore](https://ieeexplore.ieee.org/document/10889508)
+- **NeurIPS 2024 ML Compression Workshop version**: [arXiv](https://arxiv.org/abs/2410.06016)
 
 ## 🔊 Audio Samples: 
-Importance map and audio samples are available at: Link
-
-## 📌 Code Base  
-Our work is based on **DAC** [1], and our experiments were conducted using its framework.  
-Thus, this code is also built upon the DAC repository.  
-- **DAC GitHub:** [DAC GitHub Link](#)  
+Importance map and audio samples are available at: [Link](https://yoongi43.github.io/VBRRVQ.github.io/)
 
 ## ⚙️ Environment Setup  
 To set up the environment, follow these steps:  
@@ -84,3 +80,30 @@ z_q = torch.sum(z_q_is * mask_imp.unsqueeze(2), dim=1) # [B, D, T], quantized la
 
 reconstructed = model.decode(z_q)
 ```
+
+
+## 📌 Code Base  
+Our work is based on **DAC** [1], and our experiments were conducted using its framework.  
+Thus, this code is also built upon the DAC repository.  
+- **DAC GitHub:** [DAC GitHub Link](https://github.com/descriptinc/descript-audio-codec)  
+
+## 📝 References
+[1] Rithesh Kumar, Prem Seetharaman, Alejandro Luebs, Ishaan Kumar, Kundan Kumar,  
+**High-Fidelity Audio Compression with Improved RVQGAN**,  
+*Advances in Neural Information Processing Systems*, vol. 36, pp. 27980–27993, 2023.  
+[Paper Link](https://arxiv.org/abs/2306.06546)
+
+## 📚 Citation
+
+If you find our work useful, please cite:
+
+```bibtex
+@INPROCEEDINGS{10889508,
+  author={Chae, Yunkee and Choi, Woosung and Takida, Yuhta and Koo, Junghyun and Ikemiya, Yukara and Zhong, Zhi and Cheuk, Kin Wai and Martínez-Ramírez, Marco A. and Lee, Kyogu and Liao, Wei-Hsiang and Mitsufuji, Yuki},
+  booktitle={ICASSP 2025 - 2025 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)}, 
+  title={Variable Bitrate Residual Vector Quantization for Audio Coding}, 
+  year={2025},
+  pages={1-5},
+  keywords={Training;Adaptation models;Codecs;Audio coding;Vector quantization;Bit rate;Rate-distortion;Estimation;Transforms;Vectors;Neural Audio Codec;Variable Bitrate;Residual Vector Quantization;Rate-Distortion Tradeoff;Importance Map},
+  doi={10.1109/ICASSP49660.2025.10889508}}
+}

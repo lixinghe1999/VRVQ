@@ -155,7 +155,10 @@ class CodecMixin:
         DACFile
             Object containing compressed codes and metadata
             required for decompression
+            
+        TODO: Implement this function
         """
+        raise NotImplementedError
         audio_signal = audio_path_or_signal
         if isinstance(audio_signal, (str, Path)):
             audio_signal = AudioSignal.load_from_file_with_ffmpeg(str(audio_signal))
@@ -255,7 +258,10 @@ class CodecMixin:
         -------
         AudioSignal
             Object with the reconstructed audio
+            
+        TODO: Implement this function
         """
+        raise NotImplementedError
         self.eval()
         if isinstance(obj, (str, Path)):
             obj = DACFile.load(obj)

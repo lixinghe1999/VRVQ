@@ -2,7 +2,6 @@ import os; opj=os.path.join
 from pathlib import Path
 import sys
 sys.path.append(str(Path(__file__).resolve().parents[1]))
-from typing import Union
 
 import torch
 import numpy as np
@@ -18,6 +17,8 @@ import argbind
 
 import matplotlib.pyplot as plt
 import librosa.display
+import math
+import json
 
 
 DAC_VRVQ = argbind.bind(DAC_VRVQ)
@@ -25,32 +26,19 @@ DAC_VRVQ = argbind.bind(DAC_VRVQ)
 @argbind.bind(without_prefix=True)
 def inference(
     args,
-    audio_file:Union[str, AudioSignal],
     ckpt_path:str=None,
-    # ckpt_dir:str=None, ## /data2/yoongi/vrvq_github
     ckpt_dir:str=None,
     tag:str=None,
     save_result_dir:str=None,
+    data_dir:str=None,
+    num_examples: int = 30,
     device:str="cpu",
-    # device:Union[str, int]=None,
     ):
     config_path = args["args.load"]
     exp_name = config_path.replace('conf/', '').replace('.yml', '')
-    # print(f"tag: {tag} || save_result_dir: {save_result_dir} || device: {device}")
-    # assert False
-    # import pdb; pdb.set_trace()
-    # if device != 'cpu':
-    #     if device != 'cuda':
-    #         device = f'cuda:{device}'
-    #     else:
-    #         device = 'cuda:0'
 
-    # device = torch.device(device)
-    # import pdb; pdb.set_trace()
-    # assert device is not None
     if ckpt_path is None:
         ckpt_path = opj(ckpt_dir, exp_name, tag, 'dac_vrvq', 'weights.pth')
-    # import pdb; pdb.set_trace()
 
     ## Load model
     model = DAC_VRVQ()
@@ -58,57 +46,35 @@ def inference(
     model.load_state_dict(ckpt['state_dict'], strict=True)
     model.eval()
     model.to(device)
-
-    ## Load audio
-    if isinstance(audio_file, str):
-        audio = AudioSignal(audio_file)
-    else:
-        audio = audio_file
-    # audio = AudioSignal(audio_file)
-    audio = audio.to_mono()
-    audio = audio.resample(model.sample_rate)
-    assert audio.sample_rate == model.sample_rate, f"Sample rate mismatch: {audio.sample_rate} vs {model.sample_rate}"
-    audio = audio.to(device)
-    audio_tensor = audio.audio_data # (1, 1, T)
-
-    """
-    Encode
-    level: range in model.level_min, model.level_max
-    n_quantizers: if specified, the number of quantizers to use. If None, use all quantizers. i.e., it becomes CBR.
-
-    encoded: "z_q", "codes", "latents", "commitment_loss", "codebook_loss", "imp_map", "mask_imp"
-    """
-    with torch.no_grad():
-        level = 1 # Dummy value
-        audio_tensor = model.preprocess(audio_tensor, model.sample_rate)
-        encoded = model.encode(audio_tensor, n_quantizers=None, level=level)
-        # decoded = model.decode(encoded['z_q'])
-        codes = encoded['codes'] # (B, Nq, T)
-        z_q_is = encoded['z_q_is'] # (B, Nq, D, T)
-        imp_map = encoded['imp_map'] # (B, Nq, T)
-        
     
-    ## Results
-    print("Audio: ", audio_file)
-    print("Audio Shape: ", audio_tensor.shape)
-    print("z_q: ", encoded['z_q'].shape)
-    print("codes: ", encoded['codes'].shape)
-    print("imp_map: ", encoded['imp_map'].shape)
-    print("reconstructed: ", decoded.shape)
-    
-    recon_signal = AudioSignal(decoded, sample_rate=model.sample_rate)
-    input_signal = AudioSignal(audio_tensor, sample_rate=model.sample_rate)
-    
-    si_sdr = cal_metrics(recon_signal, input_signal, loss_fn="SI-SDR")
-    level_list = [0.2, 0.35, 0.5,0.6, 0.8, 1, 2, 4]
-    
-    save_results(model, audio_tensor, level_list, save_result_dir)
-
+    ## Audio loader
+    audio_loader = AudioLoader(
+        sources=[data_dir],
+        shuffle=False,
+    )
+    for idx in range(num_examples):
+        # Load random audio
+        state = np.random.RandomState(idx)
+        item = audio_loader(
+            state=state,
+            sample_rate=model.sample_rate,
+            duration=10,
+            num_channels=1,
+        )
+        signal = item['signal']
+        signal = signal.to(device)
+        path = item['path']    
+                
+        level_list = [0.2, 0.35, 0.5, 0.6, 0.8, 1, 2, 4] 
+        level_list = [0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1, 1.2, 1.5, 2, 2.5, 3]
+        save_results(model, signal.audio_data, level_list, save_result_dir)
+        print("Saved results for ", idx)
 
 def save_results(model, input_tensor, level_list, save_result_dir):
     """
     plot results
     """
+    metadata = {}
     os.makedirs(save_result_dir, exist_ok=True)
     save_idx = 0
     while True:
@@ -118,29 +84,13 @@ def save_results(model, input_tensor, level_list, save_result_dir):
         else:
             os.makedirs(save_dir)
             break
-        
-    ## Save Spectrograms
-    fig, ax = plt.subplots(figsize=(10, 5))
-    signal = AudioSignal(input_tensor, sample_rate=model.sample_rate)
-    signal_audio = signal[0].cpu()
-    ref_re = signal_audio.magnitude.max()
-    logmag_re = signal_audio.log_magnitude(ref_value=ref_re)
-    logmag_re = logmag_re.numpy()[0][0]
-    librosa.display.specshow(
-        logmag_re,
-        sr=model.sample_rate,
-        x_axis='time',
-        ax=ax,
-    )
-    ax.set_title("Input")
-    plt.savefig(opj(save_dir, "input.png"))
-    plt.close()
 
     with torch.no_grad():
         n_q = model.n_codebooks
         input_tensor = model.preprocess(input_tensor, model.sample_rate)
         enc_out = model.encode(input_tensor, n_quantizers=None, level=1) ## level value is dummy value
         imp_map = enc_out['imp_map']
+        
     ## Save imp_map
     for level in level_list:
         level_scaled = level*n_q
@@ -148,10 +98,53 @@ def save_results(model, input_tensor, level_list, save_result_dir):
         mask_imp = generate_mask_hard(imp_map_scaled, nq=n_q) # (B, Nq, T)
         z_q_is = enc_out["z_q_is"] # (B, Nq, D, T)
         z_q = torch.sum(z_q_is * mask_imp[:,:,None,:], dim=1, keepdim=False) # (B, D, T)
-        recon = model.decode(z_q)
+        with torch.no_grad():
+            recon = model.decode(z_q)
         save_mask_imp(mask_imp, level_scaled, save_dir)
-    import pdb; pdb.set_trace()
         
+        
+        ## Save reconstructed audio
+        recon_signal = AudioSignal(recon, sample_rate=model.sample_rate)
+        input_signal = AudioSignal(input_tensor, sample_rate=model.sample_rate)
+        sisdr = cal_metrics(recon_signal, input_signal, loss_fn="SI-SDR")
+        bpf = cal_bpf_from_mask(mask_imp, 
+                                bits_per_codebook=[10]*n_q) ## each codebook has 1024 indices
+        kbps = bpf * math.floor(model.sample_rate / model.hop_length) / 1000
+        filename = f"recon_{level_scaled:.2f}.wav"
+        recon_signal.to('cpu').write(opj(save_dir, filename))
+        
+        metadata[f"level_{level_scaled:.2f}"] = {
+            "sisdr": sisdr,
+            "kbps": kbps,
+        }
+    
+    with open(opj(save_dir, "metadata.json"), "w") as f:
+        json.dump(metadata, f, indent=4)
+
+    ## Input Save Spectrograms
+    fig, ax = plt.subplots(figsize=(9, 5))    
+    signal_audio = input_signal[0].cpu()
+    ref_re = signal_audio.magnitude.max()
+    logmag_re = signal_audio.log_magnitude(ref_value=ref_re)
+    logmag_re = logmag_re.numpy()[0][0]
+    librosa.display.specshow(
+        logmag_re,
+        sr=model.sample_rate,
+        y_axis='linear',
+        x_axis='time',
+        ax=ax,
+    )
+    # ax.set_title("Input")
+    ax.tick_params(axis='both', which='major', labelsize=14)
+    ax.set_xlabel("Time (s)", fontsize=14)
+    ax.set_ylabel("Freq. (Hz)", fontsize=14)
+    
+    plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
+    plt.tight_layout()
+    plt.savefig(opj(save_dir, "input.png"))
+    plt.close()
+    input_signal.to('cpu').write(opj(save_dir, "input.wav"))
+
 
 def save_mask_imp(mask_imp, level, save_dir):
     """
@@ -160,66 +153,67 @@ def save_mask_imp(mask_imp, level, save_dir):
     """
     nq = mask_imp.shape[1]
     mask_imp = mask_imp.squeeze(0).detach().cpu().numpy()
-    # mask_imp = np.flipud(mask_imp)
-    # fig, ax = plt.figure(figsize=(10, 5))
-    fig, ax = plt.subplots(figsize=(10, 5))
+    fig, ax = plt.subplots(figsize=(9, 5))
     ax.imshow(mask_imp, cmap="viridis", aspect='auto', interpolation="none")
     ax.set_yticks(np.arange(0, nq))
+    ax.set_yticklabels(np.arange(1, nq+1), fontsize=20)
     ax.invert_yaxis()
+    
+    ax.set_xticks([])
+    ax.set_xticklabels([])
 
+    plt.tight_layout()
     plt.savefig(opj(save_dir, f"imp_map_{level:.2f}.png"))
     plt.close()
-    # import pdb; pdb.set_trace()
-
-
-# def plot_imp_map(imp_map_scaled, level, save_dir):
-#     """
-#     Save imp_map_scaled as a binary image without interpolation using PIL.
-#     imp_map_scaled: (1, Nq, T), binary mask tensor.
-#     """
-#     # squeeze and vertical flip
-#     imp_map_scaled = imp_map_scaled.squeeze(0).detach().cpu().numpy()
-#     imp_map_scaled = np.flipud(imp_map_scaled)
-    
-#     # Convert binary mask (assuming values in [0,1]) to 0 or 255
-#     binary_img = (imp_map_scaled * 255).astype(np.uint8)
-    
-#     # Create the save path
-#     save_path = os.path.join(save_dir, f"imp_map_{level:.2f}.png")
-    
-#     # Save image using PIL in grayscale mode
-#     Image.fromarray(binary_img, mode='L').save(save_path)
-
-    
-    
     
 
 
 if __name__=="__main__":
     
-    data_dir = '/data2/yoongi/dataset/daps/test'
-    sample_rate = 44100
-    duration=3
-    state = np.random.RandomState(0)
-    audio_loader = AudioLoader(
-        sources=[data_dir],
-        shuffle=False,
-    )
-    
-    item = audio_loader(
-        state=state,
-        sample_rate=sample_rate,
-        duration=duration,
-        num_channels=1,
-    )
-    signal = item['signal']
-    path = item['path']
-    
-    # import pdb; pdb.set_trace()
-    
     args = argbind.parse_args()
     with argbind.scope(args):
-        inference(args,
-                  audio_file = signal,
-                  )
+        inference(args)
     
+    
+
+""" ## Single Audio Inference Example
+
+if isinstance(audio_file, str):
+    audio = AudioSignal(audio_file)
+else:
+    audio = audio_file
+# audio = AudioSignal(audio_file)
+audio = audio.to_mono()
+audio = audio.resample(model.sample_rate)
+assert audio.sample_rate == model.sample_rate, f"Sample rate mismatch: {audio.sample_rate} vs {model.sample_rate}"
+audio = audio.to(device)
+audio_tensor = audio.audio_data # (1, 1, T)
+
+
+# Encode
+# level: range in model.level_min, model.level_max
+# n_quantizers: if specified, the number of quantizers to use. If None, use all quantizers. i.e., it becomes CBR.
+# encoded: "z_q", "codes", "latents", "commitment_loss", "codebook_loss", "imp_map", "mask_imp"
+
+with torch.no_grad():
+    level = 1 # Dummy value
+    audio_tensor = model.preprocess(audio_tensor, model.sample_rate)
+    encoded = model.encode(audio_tensor, n_quantizers=None, level=level)
+    # decoded = model.decode(encoded['z_q'])
+    codes = encoded['codes'] # (B, Nq, T)
+    z_q_is = encoded['z_q_is'] # (B, Nq, D, T)
+    imp_map = encoded['imp_map'] # (B, Nq, T)
+    # decoded = model.decode(encoded['z_q'])
+
+## Results
+print("Audio: ", audio_file)
+print("Audio Shape: ", audio_tensor.shape)
+print("z_q: ", encoded['z_q'].shape)
+print("codes: ", encoded['codes'].shape)
+print("imp_map: ", encoded['imp_map'].shape)
+print("reconstructed: ", decoded.shape)
+
+recon_signal = AudioSignal(decoded, sample_rate=model.sample_rate)
+input_signal = AudioSignal(audio_tensor, sample_rate=model.sample_rate)
+si_sdr = cal_metrics(recon_signal, input_signal, loss_fn="SI-SDR")
+"""

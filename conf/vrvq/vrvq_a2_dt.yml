@@ -2,7 +2,7 @@ $include:
   - conf/base.yml
   - conf/training.yml
   - conf/dataset.yml
-  
+
 resume: false
 
 DAC_VRVQ.model_type: "VBR"
@@ -10,7 +10,8 @@ DAC_VRVQ.full_codebook_rate: 0.25
 DAC_VRVQ.quantizer_dropout: 0.0  # must be 0.0
 DAC_VRVQ.level_min: 0.125 ## 0.125 * 8 = 1
 DAC_VRVQ.level_max: 6 ## 6*8 = 48
-DAC_VRVQ.imp2mask_alpha: 4.0
+DAC_VRVQ.imp2mask_alpha: 2.0
+DAC_VRVQ.detach_imp_map_input: true
 
 lambdas: ## For generator. 
   mel/loss: 15.0
@@ -18,19 +19,4 @@ lambdas: ## For generator.
   adv/gen_loss: 1.0
   vq/commitment_loss: 0.25
   vq/codebook_loss: 1.0
-  vq/rate_loss: 3
-
-
-# Transforms
-VolumeNorm.db: [const, -16]
-
-build_transform.preprocess:
-  - Identity
-build_transform.augment_prob: 0.0
-build_transform.augment:
-  - Identity
-build_transform.postprocess:
-  - VolumeNorm
-  - RescaleAudio
-  - ShiftPhase
-  
+  vq/rate_loss: 4

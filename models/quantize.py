@@ -224,7 +224,10 @@ class ResidualVectorQuantize(nn.Module):
         -------
         Tensor[B x D x T]
             Quantized continuous representation of input
+        
+        TODO: from VBR codes to z_q
         """
+        # raise NotImplementedError
         z_q = 0.0
         z_p = []
         n_codebooks = codes.shape[1]
@@ -261,6 +264,7 @@ class ResidualVectorQuantize(nn.Module):
         Tensor[B x D x T]
             Quantized representation of latent space
         """
+        # raise NotImplementedError
         z_q = 0
         z_p = []
         codes = []
@@ -437,3 +441,9 @@ class VBRResidualVectorQuantize(ResidualVectorQuantize):
         }
         
         return out_dict
+    
+    def from_codes(self, codes: torch.Tensor, return_z_q_is=False):
+        raise NotImplementedError
+    
+    def from_latents(self, latents: torch.Tensor):
+        raise NotImplementedError

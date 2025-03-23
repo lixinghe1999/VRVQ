@@ -89,11 +89,18 @@ class AudioLoader:
                         else:
                             ### AudioSignal has (larger than) 5 channels (6 channels)
                             ###  /data2/yoongi/dataset/audioset_wav44/wavs/balanced_train/000003/id_s-HejPHC-Hk.wav
-                            signal = AudioSignal(path, 
-                                                offset=0,
-                                                duration=duration)
+                            
+                            # # Load audio signal
+                            # signal = AudioSignal(path, 
+                            #                     offset=0,
+                            #                     duration=duration)
+                            
+                            # Load zero signal
+                            signal = AudioSignal.zeros(duration, sample_rate, num_channels)
                 else:
-                    signal = AudioSignal(path, offset=offset, duration=duration)
+                    signal = AudioSignal(path, offset=0, duration=duration)
+            else:
+                signal = AudioSignal(path, offset=offset, duration=duration)
                     
         if num_channels == 1:
             signal = signal.to_mono()
