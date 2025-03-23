@@ -98,7 +98,7 @@ Thus, this code is also built upon the DAC repository.
 If you find our work useful, please cite:
 
 ```bibtex
-@INPROCEEDINGS{10889508,
+@INPROCEEDINGS{chae2025vrvq,
   author={Chae, Yunkee and Choi, Woosung and Takida, Yuhta and Koo, Junghyun and Ikemiya, Yukara and Zhong, Zhi and Cheuk, Kin Wai and Martínez-Ramírez, Marco A. and Lee, Kyogu and Liao, Wei-Hsiang and Mitsufuji, Yuki},
   booktitle={ICASSP 2025 - 2025 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)}, 
   title={Variable Bitrate Residual Vector Quantization for Audio Coding}, 
