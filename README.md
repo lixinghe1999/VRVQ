@@ -9,7 +9,7 @@ This repository contains official implementation of the paper **Variable Bitrate
 - **NeurIPS 2024 ML Compression Workshop version**: [arXiv](https://arxiv.org/abs/2410.06016)
 
 ## 🔊 Audio Samples: 
-Importance map and audio samples are available at: [Link](https://yoongi43.github.io/VBRRVQ.github.io/)
+Importance map and audio samples are available at: [Link](https://sonyresearch.github.io/VRVQ/)
 
 ## ⚙️ Environment Setup  
 To set up the environment, follow these steps:  
