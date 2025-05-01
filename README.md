@@ -5,8 +5,8 @@ This repository contains official implementation of the paper **Variable Bitrate
 
 ## 📄 Paper Link
 
-- **ICASSP 2025 version**: [IEEE Xplore](https://ieeexplore.ieee.org/document/10889508)
-- **NeurIPS 2024 ML Compression Workshop version**: [arXiv](https://arxiv.org/abs/2410.06016)
+- **ICASSP 2025 version**: [IEEE Xplore](https://ieeexplore.ieee.org/document/10889508), [arXiv](https://arxiv.org/abs/2410.06016)
+- **NeurIPS 2024 ML Compression Workshop version**: [arXiv](https://arxiv.org/abs/2410.06016v2)
 
 ## 🔊 Audio Samples: 
 Importance map and audio samples are available at: [Link](https://sonyresearch.github.io/VRVQ/)
