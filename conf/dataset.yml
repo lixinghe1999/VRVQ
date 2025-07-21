@@ -20,26 +20,30 @@ AudioDataset.without_replacement: true
 ## /data_s = /scratch/acg17028ub
 
 train/build_dataset.folders:
-        speech_hq:
-                - /path/to/speech_hq1/
-                - /path/to/speech_hq2/
-        speech_uq:
-                - /path/to/speech_uq1/
-                - /path/to/speech_uq2/
-        music_hq:
-                - /path/to/music_hq1/
-                - /path/to/music_hq2/
-        music_uq:
-                - /path/to/music_uq1/
-                - /path/to/music_uq2/
-        general:
-                - /path/to/general1/
-                - /path/to/general2/
+  music_hq:
+    - /data/home/lixinghe/datasets/aicodec/musdb18hq/train
+    - /data/home/lixinghe/datasets/aicodec/Jingju/train
+    - /data/home/lixinghe/datasets/aicodec/super_resolution_sq
+    - /data/home/lixinghe/datasets/aicodec/super_resolution_hires_2_44kHz
+    - /data/home/lixinghe/datasets/aicodec/qqmusic_top10w_wav/train
+  music_uq:
+    - /data/home/lixinghe/datasets/aicodec/jamendo
+    - /data/home/lixinghe/datasets/aicodec/fma_large_f32_wav
+  general:
+    - /data/home/lixinghe/datasets/aicodec/audioset/data/unbalanced_train_segments
+    - /data/home/lixinghe/datasets/aicodec/audioset/data/balanced_train_segments
 
 val/build_dataset.folders:
-        speech_hq:
-                - /path/to/speech_hq/
-        music_hq:
-                - /path/to/music_hq/
-        general:
-                - /path/to/general/
+  music_hq:
+    - /data/home/lixinghe/datasets/aicodec/musdb18hq/test
+    - /data/home/lixinghe/datasets/aicodec/Jingju/test
+    - /data/home/lixinghe/datasets/aicodec/qqmusic_top10w_wav/val
+  general:
+    - /data/home/lixinghe/datasets/aicodec/audioset/data/eval_segments
+
+test/build_dataset.folders:
+  music_hq:
+    - /data/home/lixinghe/datasets/aicodec/musdb18hq/test
+    - /data/home/lixinghe/datasets/aicodec/Jingju/test
+  general:
+    - /data/home/lixinghe/datasets/aicodec/audioset/data/eval_segments

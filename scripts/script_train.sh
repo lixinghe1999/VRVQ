@@ -3,7 +3,7 @@
 
 ## ex for multi_gpu) in VRVQ/, bash scripts/script_train.sh vrvq/vrvq_a2 2,3
 CONFIG_DIR="conf"
-SAVE_DIR="/path/to/save_dir"
+SAVE_DIR="./runs"
 
 EXPNAME=${1}
 GPU=${2}
