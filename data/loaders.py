@@ -24,7 +24,8 @@ class AudioLoader:
         ext: List[str] = util.AUDIO_EXTENSIONS,
         shuffle: bool = True,
         shuffle_state: int = 0,
-    ):
+    ):  
+        print("AudioLoader", sources)
         self.audio_lists = util.read_sources(
             sources, relative_path=relative_path, ext=ext
         )
