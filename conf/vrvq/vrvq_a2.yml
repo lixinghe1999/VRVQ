@@ -1,5 +1,5 @@
 $include:
-  - conf/base.yml
+  - conf/base_24kbps.yml
   - conf/training.yml
   - conf/dataset.yml
 

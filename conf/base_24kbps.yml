@@ -29,7 +29,7 @@ AdamW.lr: 0.0001
 ExponentialLR.gamma: 0.999996
 
 amp: false
-val_batch_size: 16
+val_batch_size: 64
 device: cuda
 num_iters: 250000
 save_iters: [10000, 50000, 100000, 200000]

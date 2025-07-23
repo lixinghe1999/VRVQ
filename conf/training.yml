@@ -1,7 +1,6 @@
 # batch_size
-# batch_size: 16 ## 
-batch_size: 16
-val_batch_size: 16
+batch_size: 64
+val_batch_size: 64
 # batch_size_test: 8
 num_workers: 16
 

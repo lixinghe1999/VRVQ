@@ -1,5 +1,5 @@
 CONFIG_DIR="conf"
-SAVE_DIR="./runs/first_try"
+SAVE_DIR="./runs/24kbps"
 EXPNAME=${1}
 GPU=${2}
 RESUME=${3}
