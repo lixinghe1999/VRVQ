@@ -31,6 +31,16 @@ def logcosh(alpha, pmk):
     mask_smooth = mask_smooth1 * mask1 + mask_smooth2 * mask2
     return mask_smooth
 
+def generate_mask_ste_moe(x, nq, alpha=1, Ns=2):
+    '''
+    x: [B, nq, T]
+    '''
+    xmnq = x
+    xmnq[:, :Ns, :] = 1 
+    mask_smooth = xmnq
+    mask_quant = torch.where(xmnq>=0.5, torch.ones_like(xmnq), torch.zeros_like(xmnq)).float()
+    final_mask = mask_smooth + (mask_quant - mask_smooth).detach()
+    return final_mask
 
 def generate_mask_ste(x, nq, alpha=1):
     device = x.device

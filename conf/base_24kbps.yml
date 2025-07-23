@@ -6,7 +6,7 @@ DAC_VRVQ.decoder_dim: 1536
 DAC_VRVQ.decoder_rates: [8, 8, 4, 2]
 
 # Quantization
-DAC_VRVQ.n_codebooks: 8
+DAC_VRVQ.n_codebooks: 28
 DAC_VRVQ.codebook_size: 1024
 DAC_VRVQ.codebook_dim: 8
 DAC_VRVQ.quantizer_dropout: 1.0

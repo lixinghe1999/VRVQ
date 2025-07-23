@@ -28,7 +28,7 @@ train/build_dataset.folders:
     - /data/home/lixinghe/datasets/aicodec/qqmusic_top10w_wav/train
   music_uq:
     - /data/home/lixinghe/datasets/aicodec/jamendo
-    - /data/home/lixinghe/datasets/aicodec/fma_large_f32_wav
+    # - /data/home/lixinghe/datasets/aicodec/fma_large_f32_wav
   general:
     - /data/home/lixinghe/datasets/aicodec/audioset/data/unbalanced_train_segments
     - /data/home/lixinghe/datasets/aicodec/audioset/data/balanced_train_segments
